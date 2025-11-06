@@ -237,7 +237,7 @@ async function searchKnowledgeBase(
         .join(", ")}`;
     }
 
-    console.log(logMessage);
+    // console.log(logMessage);
 
     // Only increment usage count for the first/best match to avoid skewing statistics
     await incrementUsageCount(topMatch.id);
@@ -274,9 +274,7 @@ async function getAllKnowledge({
             'resolved_at', hr.resolved_at,
             'timeout_at', hr.timeout_at,
             'supervisor_response', hr.supervisor_response,
-            'call_id', hr.call_id,
-            'agent_confidence', hr.agent_confidence,
-            'conversation_context', hr.conversation_context
+            'call_id', hr.call_id
           )
         ELSE NULL
       END as learned_from_request
@@ -312,24 +310,19 @@ async function getKnowledgeById(id) {
 
 /**
  * Create a new knowledge base entry
- * @param {Object} data - { question_pattern, answer, tags, confidence_threshold }
+ * @param {Object} data - { question_pattern, answer, tags }
  * @returns {Promise<Object>} Created knowledge base entry
  */
-async function createKnowledgeEntry({
-  question_pattern,
-  answer,
-  tags = [],
-  confidence_threshold = 0.8,
-}) {
+async function createKnowledgeEntry({ question_pattern, answer, tags = [] }) {
   if (!question_pattern || !answer) {
     throw new Error("question_pattern and answer are required");
   }
 
   const result = await query(
-    `INSERT INTO knowledge_base (question_pattern, answer, tags, confidence_threshold)
-     VALUES ($1, $2, $3, $4)
+    `INSERT INTO knowledge_base (question_pattern, answer, tags)
+     VALUES ($1, $2, $3)
      RETURNING *`,
-    [question_pattern.trim(), answer.trim(), tags, confidence_threshold]
+    [question_pattern.trim(), answer.trim(), tags]
   );
 
   return result.rows[0];
@@ -342,13 +335,7 @@ async function createKnowledgeEntry({
  * @returns {Promise<Object>} Updated knowledge base entry
  */
 async function updateKnowledgeEntry(id, updates) {
-  const allowedFields = [
-    "question_pattern",
-    "answer",
-    "tags",
-    "confidence_threshold",
-    "is_active",
-  ];
+  const allowedFields = ["question_pattern", "answer", "tags", "is_active"];
   const setClauses = [];
   const params = [];
   let paramCount = 1;

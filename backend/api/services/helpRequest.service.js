@@ -7,10 +7,10 @@ const { query, getClient } = require('../../db/config');
 
 /**
  * Create a new help request
- * @param {Object} requestData - { customer_phone, question, call_id, agent_confidence }
+ * @param {Object} requestData - { customer_phone, question, call_id }
  * @returns {Promise<Object>} Created help request
  */
-async function createHelpRequest({ customer_phone, question, call_id, agent_confidence = null }) {
+async function createHelpRequest({ customer_phone, question, call_id }) {
   // Validate input
   if (!customer_phone || !question) {
     throw new Error('customer_phone and question are required');
@@ -21,10 +21,10 @@ async function createHelpRequest({ customer_phone, question, call_id, agent_conf
 
   const result = await query(
     `INSERT INTO help_requests
-     (customer_phone, question, status, call_id, agent_confidence, timeout_at)
-     VALUES ($1, $2, 'pending', $3, $4, NOW() + INTERVAL '${timeoutMinutes} minutes')
+     (customer_phone, question, status, call_id, timeout_at)
+     VALUES ($1, $2, 'pending', $3, NOW() + INTERVAL '${timeoutMinutes} minutes')
      RETURNING *`,
-    [customer_phone, question, call_id, agent_confidence]
+    [customer_phone, question, call_id]
   );
 
   const helpRequest = result.rows[0];

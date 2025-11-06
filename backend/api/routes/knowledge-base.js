@@ -135,11 +135,11 @@ router.get('/:id', async (req, res, next) => {
 /**
  * POST /api/knowledge-base
  * Create a new knowledge base entry
- * Body: { question_pattern, answer, tags, confidence_threshold }
+ * Body: { question_pattern, answer, tags }
  */
 router.post('/', async (req, res, next) => {
   try {
-    const { question_pattern, answer, tags, confidence_threshold } = req.body;
+    const { question_pattern, answer, tags } = req.body;
 
     // Validate required fields
     if (!question_pattern || !answer) {
@@ -153,7 +153,6 @@ router.post('/', async (req, res, next) => {
       question_pattern,
       answer,
       tags: tags || [],
-      confidence_threshold: confidence_threshold || 0.8,
     });
 
     res.status(201).json({
@@ -176,7 +175,7 @@ router.post('/', async (req, res, next) => {
 /**
  * PATCH /api/knowledge-base/:id
  * Update a knowledge base entry
- * Body: { question_pattern?, answer?, tags?, confidence_threshold?, is_active? }
+ * Body: { question_pattern?, answer?, tags?, is_active? }
  */
 router.patch('/:id', async (req, res, next) => {
   try {

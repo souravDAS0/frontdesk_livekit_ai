@@ -139,12 +139,6 @@ function PendingRequestCard({ request, onRespond, isResponding }) {
         </div>
       </div>
 
-      {request.agent_confidence && (
-        <div className="text-xs text-gray-500 mb-4">
-          Agent Confidence: {(request.agent_confidence * 100).toFixed(1)}%
-        </div>
-      )}
-
       <form onSubmit={handleSubmit} className="space-y-3">
         <div>
           <label htmlFor={`answer-${request.id}`} className="block text-sm font-semibold text-gray-700 mb-1">
