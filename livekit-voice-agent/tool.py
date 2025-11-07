@@ -8,7 +8,7 @@ from livekit.agents import function_tool, RunContext, get_job_context
 logger = logging.getLogger("priya-salon-assistant")
 
 # API configuration
-API_BASE_URL = os.getenv("API_BASE_URL", "https://unbase-alita-unscholastic.ngrok-free.dev")
+API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:3000")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 
 

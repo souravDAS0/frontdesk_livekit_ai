@@ -15,7 +15,7 @@ This system enables AI voice agents to provide intelligent customer service whil
 - **Knowledge Base Learning** - Automatically learns from supervisor responses with full-text search
 - **Timeout Handling** - Background cron job gracefully handles unresponsive supervisors
 - **Real-time Updates** - Auto-refresh dashboard every 30 seconds
-- **Production Deployment** - Deployed on LiveKit Cloud with Twilio integration
+- **Voice Integration** - Ready for deployment with LiveKit and Twilio integration
 
 ## Architecture Overview
 
@@ -23,12 +23,11 @@ This system enables AI voice agents to provide intelligent customer service whil
 ┌─────────────┐      ┌──────────────────┐      ┌──────────────┐
 │   Customer  │─────▶│  LiveKit Python  │─────▶│   Backend    │
 │  (Voice)    │◀─────│  Agent (Priya)   │◀─────│  API (Node)  │
-│   Twilio    │      │  Deployed Cloud  │      │  Port 3000   │
+│   Twilio    │      │  (Local/Cloud)   │      │  Port 3000   │
 └─────────────┘      └──────────────────┘      └──────┬───────┘
-                            │                          │
-                            │ ngrok tunnel             │
-                            │ (dev environment)        │
-                            ▼                          │
+                                                       │
+                                                       │
+                                                       │
                      ┌─────────────┐                   │
                      │  Supervisor │◀──────────────────┤
                      │  Dashboard  │                   │
@@ -47,8 +46,8 @@ This system enables AI voice agents to provide intelligent customer service whil
 
 ### 1. Customer Calls (via Twilio)
 
-- Customer dials +1 971 316 5974
-- Twilio SIP trunk routes to LiveKit Cloud
+- Customer dials your configured phone number
+- Twilio SIP trunk routes to LiveKit
 - AI agent "Priya" from "Priya's Beauty Lounge" answers
 
 ### 2. Knowledge Base Check (Two-Tier Matching)
@@ -126,9 +125,8 @@ This system enables AI voice agents to provide intelligent customer service whil
 ### Infrastructure
 
 - **Database**: PostgreSQL with uuid-ossp and pg_trgm extensions
-- **Agent Deployment**: LiveKit Cloud via livekit-cli
-- **Telephony**: Twilio SIP trunk (+1 971 316 5974)
-- **Dev Tunneling**: ngrok (exposing localhost backend)
+- **Agent Deployment**: LiveKit (local or cloud via livekit-cli)
+- **Telephony**: Twilio SIP trunk (optional for production)
 - **Containerization**: Docker support for agent
 
 ## Why Python SDK for LiveKit Agent?
@@ -359,10 +357,10 @@ uv run agent.py start
 
 **Deployment:**
 
-The agent is deployed to **LiveKit Cloud** using the official `livekit-cli`:
+The agent can be deployed to **LiveKit Cloud** using the official `livekit-cli`:
 
 ```bash
-# Deploy to LiveKit Cloud
+# Deploy to LiveKit Cloud (optional)
 lk agent create
 
 # Deploy new versions
@@ -370,15 +368,6 @@ lk agent deploy
 
 # Based on: https://docs.livekit.io/agents/ops/deployment/
 ```
-
-**Current Setup:**
-
-- Deployed on LiveKit Cloud
-- Integrated with Twilio SIP trunk
-- Phone number: **+1 971 316 5974**
-- Inbound dispatch rules configured
-- Agent picks up calls automatically
-- Calls backend via ngrok tunnel: `https://unbase-alita-unscholastic.ngrok-free.dev`
 
 **Technology Choices:**
 
@@ -630,10 +619,8 @@ LIVEKIT_URL=wss://your-project.livekit.cloud
 # For local testing with LiveKit Playground
 NEXT_PUBLIC_LIVEKIT_URL=wss://your-project.livekit.cloud
 
-# Backend API (use ngrok URL for deployed agent)
+# Backend API
 API_BASE_URL=http://localhost:3000/api
-# OR for deployed agent:
-# API_BASE_URL=https://your-ngrok-url.ngrok-free.dev/api
 
 # AI Services
 OPENAI_API_KEY=your_openai_api_key
@@ -851,35 +838,11 @@ Visit: https://agents-playground.livekit.io
 
 ```
 
-### 3. Setting Up ngrok for Deployed Agent
+### 3. Testing with Voice (Optional Production Setup)
 
-If your LiveKit agent is deployed to LiveKit Cloud but needs to access your local backend:
+For production deployment with phone calls, you can optionally configure Twilio integration as described in the deployment section below.
 
-```bash
-# Install ngrok
-brew install ngrok  # macOS
-# OR download from https://ngrok.com
-
-# Authenticate (get token from ngrok.com)
-ngrok config add-authtoken <your_token>
-
-# Expose backend API
-ngrok http 3000
-
-# Copy the HTTPS URL (e.g., https://abc123.ngrok-free.dev)
-# Update agent .env.local:
-API_BASE_URL=https://abc123.ngrok-free.dev/api
-```
-
-**Current production setup:**
-
-- Agent deployed to LiveKit Cloud
-- Backend exposed via ngrok: `https://unbase-alita-unscholastic.ngrok-free.dev`
-- Twilio number: `+1 971 316 5974`
-- SIP trunk configured with LiveKit dispatch rules
-- Agent picks up calls and uses backend API via ngrok
-
-## Deploying to LiveKit Cloud
+## Deploying to LiveKit Cloud (Optional)
 
 ### 1. Install LiveKit CLI
 
@@ -930,12 +893,12 @@ lk agent deploy
 **Based on official documentation:**
 https://docs.livekit.io/agents/ops/deployment/
 
-### 4. Configure Twilio (Optional but Recommended)
+### 4. Configure Twilio (Optional for Production Phone Calls)
 
 For production phone calls:
 
 1. **Sign up for Twilio** at https://twilio.com
-2. **Purchase a phone number** (e.g., +1 971 316 5974)
+2. **Purchase a phone number**
 3. **Create SIP Trunk** in Twilio console
 4. **Configure LiveKit Telephony**:
    - Go to LiveKit Cloud dashboard
@@ -943,14 +906,6 @@ For production phone calls:
    - Add inbound SIP trunk
    - Configure dispatch rules to route to your agent
 5. **Test**: Call your Twilio number, agent should answer
-
-**Current production setup:**
-
-- Twilio number: +1 971 316 5974
-- Inbound SIP trunk connected to LiveKit
-- Dispatch rules: Route all calls to "Priya" agent
-- Agent deployed on LiveKit Cloud
-- Backend accessible via ngrok tunnel
 
 ## Design Decisions
 
@@ -1463,8 +1418,9 @@ Error: Failed to check knowledge base: ECONNREFUSED
 **Solutions:**
 
 - Check backend is running: `curl http://localhost:3000/api/health`
-- If agent deployed to cloud, use ngrok URL: `API_BASE_URL=https://your-ngrok.ngrok-free.dev/api`
+- Verify `API_BASE_URL` is set correctly in agent `.env.local`
 - Check firewall allows agent to reach backend
+- Ensure backend and agent are running on the same network (if testing locally)
 
 #### Missing API Keys
 
@@ -1592,7 +1548,6 @@ This project is for internal use at Frontdesk. All rights reserved.
 - **API Health**: http://localhost:3000/api/health
 - **Supervisor UI**: http://localhost:3001
 - **LiveKit Playground**: https://agents-playground.livekit.io
-- **Production Phone**: +1 971 316 5974
 
 ### Common Commands
 
@@ -1613,9 +1568,8 @@ uv run agent.py console                      # Interactive testing
 uv run agent.py dev                          # LiveKit dev mode
 uv run agent.py start                        # Production mode
 
-# Deployment
-livekit-cli deploy                           # Deploy agent to cloud
-ngrok http 3000                              # Expose backend
+# Deployment (optional)
+lk agent deploy                              # Deploy agent to LiveKit Cloud
 ```
 
 ### Environment Variables Summary

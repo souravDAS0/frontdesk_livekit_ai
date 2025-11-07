@@ -147,7 +147,8 @@ async function respondToHelpRequest(id, answer) {
        DO UPDATE SET
          answer = EXCLUDED.answer,
          updated_at = NOW(),
-         learned_from_request_id = EXCLUDED.learned_from_request_id`,
+         learned_from_request_id = EXCLUDED.learned_from_request_id,
+         is_active = true`,
       [helpRequest.question, answer, id]
     );
 
