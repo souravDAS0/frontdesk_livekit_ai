@@ -1,0 +1,46 @@
+{
+  "name": "frontdesk-ai-supervisor",
+  "version": "1.0.0",
+  "description": "Human-in-the-loop AI supervisor system for Frontdesk AI receptionists",
+  "main": "api/server.js",
+  "scripts": {
+    "start": "node api/server.js",
+    "dev": "node api/server.js",
+    "agent": "cd livekit-voice-agent && uv run agent.py console dev",
+    "agent:dev": "cd livekit-voice-agent && uv run agent.py console",
+    "agent:download-files": "cd livekit-voice-agent && python agent.py download-files",
+    "migrate": "node db/migrate.js",
+    "seed": "node db/seeds/seed.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "ai",
+    "livekit",
+    "voice-agent",
+    "human-in-the-loop"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@livekit/agents": "^1.0.15",
+    "@livekit/agents-plugin-livekit": "^1.0.15",
+    "@livekit/agents-plugin-openai": "^1.0.15",
+    "@livekit/agents-plugin-silero": "^1.0.15",
+    "@livekit/noise-cancellation-node": "^0.1.9",
+    "axios": "^1.13.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "livekit-server-sdk": "^2.0.0",
+    "node-cron": "^4.2.1",
+    "pg": "^8.11.3",
+    "uuid": "^9.0.1",
+    "ws": "^8.16.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.9.2",
+    "nodemon": "^3.0.2",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  }
+}
